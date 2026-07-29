@@ -1,24 +1,78 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader } from "@/components/aios/Loader";
+import { Cursor, SmoothScroll } from "@/components/aios/Chrome";
+import { Navbar } from "@/components/aios/Navbar";
+import { Hero } from "@/components/aios/Hero";
+import { Models } from "@/components/aios/Models";
+import { Features } from "@/components/aios/Features";
+import { Workspace } from "@/components/aios/Workspace";
+import { Agents } from "@/components/aios/Agents";
+import { Marketplace } from "@/components/aios/Marketplace";
+import { Integrations } from "@/components/aios/Integrations";
+import { Collaboration } from "@/components/aios/Collaboration";
+import { Testimonials } from "@/components/aios/Testimonials";
+import { Pricing } from "@/components/aios/Pricing";
+import { Faq } from "@/components/aios/Faq";
+import { Footer } from "@/components/aios/Footer";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const title = "AIOS — One Platform. Every AI.";
+const description =
+  "AIOS is the operating system for AI: 100+ models, agents, workflows, code, images, video and team collaboration in one premium workspace.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "AIOS",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description,
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD",
+          },
+        }),
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="relative min-h-screen bg-background">
+      <Loader />
+      <SmoothScroll />
+      <Cursor />
+      <Navbar />
+      <main>
+        <Hero />
+        <Models />
+        <Features />
+        <Workspace />
+        <Agents />
+        <Marketplace />
+        <Integrations />
+        <Collaboration />
+        <Testimonials />
+        <Pricing />
+        <Faq />
+      </main>
+      <Footer />
     </div>
   );
 }
