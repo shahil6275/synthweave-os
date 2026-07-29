@@ -26,6 +26,36 @@ const socials = [
 ];
 
 export function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (status === "loading") return;
+
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0].message);
+      return;
+    }
+
+    setError(null);
+    setStatus("loading");
+
+    const { error: insertError } = await supabase
+      .from("leads")
+      .insert({ email: parsed.data.toLowerCase(), source: "footer" });
+
+    if (insertError && insertError.code !== "23505") {
+      setStatus("idle");
+      setError("Something went wrong. Please try again.");
+      return;
+    }
+
+    setStatus("success");
+  };
+
   return (
     <footer id="footer" className="relative overflow-hidden">
       <AuroraBackdrop className="opacity-60" />
@@ -39,24 +69,93 @@ export function Footer() {
             <p className="mx-auto mt-5 max-w-lg text-sm text-muted-foreground md:text-base">
               Join 50,000+ builders running everything AI inside one workspace.
             </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mx-auto mt-9 flex max-w-md flex-col gap-2.5 sm:flex-row"
-            >
-              <label htmlFor="newsletter" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="newsletter"
-                type="email"
-                required
-                placeholder="you@company.com"
-                className="h-12 flex-1 rounded-full border border-input bg-secondary/40 px-5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/60"
-              />
-              <MagneticButton type="submit" strength={0.15} className="h-12">
-                Start Free
-              </MagneticButton>
-            </form>
+
+            <div className="mx-auto mt-9 min-h-[6rem] max-w-md">
+              <AnimatePresence mode="wait" initial={false}>
+                {status === "success" ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="glass flex items-center gap-3 rounded-full py-3 pl-3 pr-6 text-left"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <motion.span
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.1, type: "spring", stiffness: 320, damping: 18 }}
+                      className="grid size-9 shrink-0 place-items-center rounded-full bg-accent/20 text-accent ring-1 ring-accent/40"
+                    >
+                      <Check className="size-4" />
+                    </motion.span>
+                    <span className="text-sm text-foreground">
+                      You&apos;re on the list.
+                      <span className="block text-xs text-muted-foreground">
+                        We&apos;ll email {email.trim().toLowerCase()} when your workspace is ready.
+                      </span>
+                    </span>
+                  </motion.div>
+                ) : (
+                  <motion.form
+                    key="form"
+                    onSubmit={handleSubmit}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col gap-2.5 sm:flex-row"
+                    noValidate
+                  >
+                    <label htmlFor="newsletter" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      id="newsletter"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      maxLength={255}
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={error ? "newsletter-error" : undefined}
+                      placeholder="you@company.com"
+                      className="h-12 flex-1 rounded-full border border-input bg-secondary/40 px-5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/60"
+                    />
+                    <MagneticButton
+                      type="submit"
+                      strength={0.15}
+                      className="h-12"
+                      disabled={status === "loading"}
+                    >
+                      {status === "loading" ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="size-4 animate-spin" />
+                          Joining
+                        </span>
+                      ) : (
+                        "Start Free"
+                      )}
+                    </MagneticButton>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              {error && (
+                <p
+                  id="newsletter-error"
+                  className="mt-3 text-xs text-destructive"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              )}
+            </div>
+
           </div>
         </Reveal>
 
