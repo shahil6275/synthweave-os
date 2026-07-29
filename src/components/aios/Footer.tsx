@@ -1,5 +1,16 @@
-import { Github, Linkedin, Twitter, Youtube } from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, Github, Linkedin, Loader2, Twitter, Youtube } from "lucide-react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop, MagneticButton, Reveal } from "./primitives";
+
+const emailSchema = z
+  .string()
+  .trim()
+  .min(3, { message: "Please enter your email" })
+  .max(255, { message: "Email must be less than 255 characters" })
+  .email({ message: "Please enter a valid email address" });
 
 const columns = [
   { title: "Product", links: ["Features", "Agents", "Marketplace", "Workspace", "Pricing"] },
