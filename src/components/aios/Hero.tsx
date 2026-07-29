@@ -123,13 +123,15 @@ export function Hero() {
             return (
               <div
                 key={name}
-                className="absolute left-1/2 top-1/2 animate-float"
+                className="absolute left-1/2 top-1/2"
                 style={{
-                  transform: `translate(-50%,-50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius * 0.55}px)`,
-                  animationDelay: `${i * 0.5}s`,
+                  transform: `translate(-50%,-50%) translate(${Math.round(Math.cos(angle) * radius)}px, ${Math.round(Math.sin(angle) * radius * 0.55)}px)`,
                 }}
               >
-                <span className="glass rounded-full px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground">
+                <span
+                  className="glass animate-float block rounded-full px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground"
+                  style={{ animationDelay: `${i * 0.5}s` }}
+                >
                   {name}
                 </span>
               </div>
