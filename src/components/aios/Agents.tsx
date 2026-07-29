@@ -22,7 +22,7 @@ export function Agents() {
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {agents.map((a, i) => (
           <Reveal key={a.name} delay={(i % 3) * 0.07}>
-            <GlowCard className="h-full animate-float p-7" >
+            <GlowCard className="h-full p-7">
               <div className="flex items-center justify-between">
                 <span className="grid size-11 place-items-center rounded-2xl bg-primary/15 ring-1 ring-primary/30">
                   <a.icon className="size-5 text-accent" strokeWidth={1.5} />
