@@ -87,6 +87,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "AIOS" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "AIOS — One Platform. Every AI." },
+      { name: "twitter:title", content: "AIOS — One Platform. Every AI." },
+      { property: "og:description", content: "The operating system for artificial intelligence. 100+ models, agents, workflows and team collaboration in one premium workspace." },
+      { name: "twitter:description", content: "The operating system for artificial intelligence. 100+ models, agents, workflows and team collaboration in one premium workspace." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a193d964-0448-430a-b3e1-0755d86eeeb5" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a193d964-0448-430a-b3e1-0755d86eeeb5" },
     ],
     links: [
       {
