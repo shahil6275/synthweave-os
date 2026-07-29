@@ -71,8 +71,6 @@ export function Loader() {
           </div>
         </motion.div>
       )}
-    </motion.div>
-      )}
     </AnimatePresence>
   );
 }
