@@ -174,7 +174,9 @@ export function Hero() {
                     <span
                       key={i}
                       className="flex-1 rounded-t bg-gradient-to-t from-primary/30 to-accent/80"
-                      style={{ height: `${18 + Math.abs(Math.sin(i / 3)) * 78}%` }}
+                      style={{
+                        height: `${Math.round(18 + Math.abs(Math.sin(i / 3)) * 78)}%`,
+                      }}
                     />
                   ))}
                 </div>
