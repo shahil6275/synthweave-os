@@ -174,9 +174,19 @@ export function Footer() {
                       </span>
                       <span>
                         I agree to receive product updates from AIOS and accept the{" "}
-                        <a href="#footer" className="text-foreground underline underline-offset-4">
+                        <Link
+                          to="/privacy"
+                          className="text-foreground underline underline-offset-4 transition-colors hover:text-accent"
+                        >
                           Privacy Policy
-                        </a>
+                        </Link>{" "}
+                        and{" "}
+                        <Link
+                          to="/terms"
+                          className="text-foreground underline underline-offset-4 transition-colors hover:text-accent"
+                        >
+                          Terms of Service
+                        </Link>
                         . You can unsubscribe at any time.
                       </span>
                     </label>
