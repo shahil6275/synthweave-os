@@ -27,6 +27,7 @@ const socials = [
 
 export function Footer() {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -40,12 +41,20 @@ export function Footer() {
       return;
     }
 
+    if (!consent) {
+      setError("Please accept the privacy policy to continue.");
+      return;
+    }
+
     setError(null);
     setStatus("loading");
 
-    const { error: insertError } = await supabase
-      .from("leads")
-      .insert({ email: parsed.data.toLowerCase(), source: "footer" });
+    const { error: insertError } = await supabase.from("leads").insert({
+      email: parsed.data.toLowerCase(),
+      source: "footer",
+      consent: true,
+      consent_at: new Date().toISOString(),
+    });
 
     if (insertError && insertError.code !== "23505") {
       setStatus("idle");
