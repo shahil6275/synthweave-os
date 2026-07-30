@@ -16,18 +16,24 @@ export type Database = {
     Tables: {
       leads: {
         Row: {
+          consent: boolean
+          consent_at: string | null
           created_at: string
           email: string
           id: string
           source: string
         }
         Insert: {
+          consent?: boolean
+          consent_at?: string | null
           created_at?: string
           email: string
           id?: string
           source?: string
         }
         Update: {
+          consent?: boolean
+          consent_at?: string | null
           created_at?: string
           email?: string
           id?: string
