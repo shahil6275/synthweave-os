@@ -115,41 +115,70 @@ export function Footer() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
                     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col gap-2.5 sm:flex-row"
+                    className="flex flex-col gap-3"
                     noValidate
                   >
-                    <label htmlFor="newsletter" className="sr-only">
-                      Email address
-                    </label>
-                    <input
-                      id="newsletter"
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (error) setError(null);
-                      }}
-                      maxLength={255}
-                      aria-invalid={Boolean(error)}
-                      aria-describedby={error ? "newsletter-error" : undefined}
-                      placeholder="you@company.com"
-                      className="h-12 flex-1 rounded-full border border-input bg-secondary/40 px-5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/60"
-                    />
-                    <MagneticButton
-                      type="submit"
-                      strength={0.15}
-                      className="h-12"
-                      disabled={status === "loading"}
+                    <div className="flex flex-col gap-2.5 sm:flex-row">
+                      <label htmlFor="newsletter" className="sr-only">
+                        Email address
+                      </label>
+                      <input
+                        id="newsletter"
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (error) setError(null);
+                        }}
+                        maxLength={255}
+                        aria-invalid={Boolean(error)}
+                        aria-describedby={error ? "newsletter-error" : undefined}
+                        placeholder="you@company.com"
+                        className="h-12 flex-1 rounded-full border border-input bg-secondary/40 px-5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/60"
+                      />
+                      <MagneticButton
+                        type="submit"
+                        strength={0.15}
+                        className="h-12"
+                        disabled={status === "loading"}
+                      >
+                        {status === "loading" ? (
+                          <span className="flex items-center gap-2">
+                            <Loader2 className="size-4 animate-spin" />
+                            Joining
+                          </span>
+                        ) : (
+                          "Start Free"
+                        )}
+                      </MagneticButton>
+                    </div>
+
+                    <label
+                      htmlFor="newsletter-consent"
+                      className="flex cursor-pointer items-start gap-3 px-1 text-left text-xs leading-relaxed text-muted-foreground"
                     >
-                      {status === "loading" ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="size-4 animate-spin" />
-                          Joining
-                        </span>
-                      ) : (
-                        "Start Free"
-                      )}
-                    </MagneticButton>
+                      <span className="relative mt-0.5 grid size-4 shrink-0 place-items-center rounded-[5px] border border-input bg-secondary/40 transition-colors has-[:checked]:border-accent/60 has-[:checked]:bg-accent/20">
+                        <input
+                          id="newsletter-consent"
+                          type="checkbox"
+                          checked={consent}
+                          onChange={(e) => {
+                            setConsent(e.target.checked);
+                            if (error) setError(null);
+                          }}
+                          aria-describedby={error ? "newsletter-error" : undefined}
+                          className="absolute inset-0 cursor-pointer opacity-0"
+                        />
+                        {consent && <Check className="size-3 text-accent" />}
+                      </span>
+                      <span>
+                        I agree to receive product updates from AIOS and accept the{" "}
+                        <a href="#footer" className="text-foreground underline underline-offset-4">
+                          Privacy Policy
+                        </a>
+                        . You can unsubscribe at any time.
+                      </span>
+                    </label>
                   </motion.form>
                 )}
               </AnimatePresence>
