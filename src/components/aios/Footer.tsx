@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Github, Linkedin, Loader2, Twitter, Youtube } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop, MagneticButton, Reveal } from "./primitives";
