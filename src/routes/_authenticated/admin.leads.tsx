@@ -115,6 +115,44 @@ function AdminLeadsPage() {
     });
   }, [leads, query, consentFilter]);
 
+  const sorted = useMemo(() => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (typeof av === "boolean" || typeof bv === "boolean") {
+        return ((av ? 1 : 0) - (bv ? 1 : 0)) * dir;
+      }
+      const as = (av ?? "") as string;
+      const bs = (bv ?? "") as string;
+      if (as === bs) return 0;
+      if (as === "") return 1;
+      if (bs === "") return -1;
+      return as.localeCompare(bs, undefined, { numeric: true }) * dir;
+    });
+  }, [filtered, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () => sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [sorted, currentPage],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, consentFilter, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (key === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "created_at" || key === "consent_at" ? "desc" : "asc");
+    }
+  };
+
+
   const handleExport = () => {
     const blob = new Blob([toCsv(filtered)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
