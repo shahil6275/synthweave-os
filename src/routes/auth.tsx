@@ -2,7 +2,6 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { AuroraBackdrop } from "@/components/aios/primitives";
 
 export const Route = createFileRoute("/auth")({
@@ -70,22 +69,6 @@ function AuthPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Admin access is required to view lead records.
         </p>
-
-        <button
-          type="button"
-          onClick={() =>
-            lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })
-          }
-          className="mt-7 flex h-12 w-full items-center justify-center gap-2 rounded-full border border-input bg-secondary/40 text-sm font-medium transition-colors hover:bg-secondary/70"
-        >
-          Continue with Google
-        </button>
-
-        <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-          <span className="hairline h-px flex-1" />
-          or
-          <span className="hairline h-px flex-1" />
-        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <label htmlFor="email" className="sr-only">Email</label>
