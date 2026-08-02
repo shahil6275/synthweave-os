@@ -284,46 +284,102 @@ function AdminLeadsPage() {
                 : "No leads match your filters."}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[46rem] text-left text-sm">
-                <thead>
-                  <tr className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    <th scope="col" className="px-6 py-4 font-normal">Email</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Source</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Consent</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Consent at</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Captured</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((lead) => (
-                    <tr key={lead.id} className="border-t border-border/60">
-                      <td className="px-6 py-4 text-foreground">{lead.email}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
-                            lead.consent
-                              ? "bg-accent/15 text-accent ring-accent/40"
-                              : "bg-destructive/10 text-destructive ring-destructive/40"
-                          }`}
-                        >
-                          {lead.consent ? "Granted" : "Missing"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {formatDate(lead.consent_at)}
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {formatDate(lead.created_at)}
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[46rem] text-left text-sm">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {COLUMNS.map((col) => {
+                        const active = sortKey === col.key;
+                        const Icon = !active ? ChevronsUpDown : sortDir === "asc" ? ArrowUp : ArrowDown;
+                        return (
+                          <th
+                            key={col.key}
+                            scope="col"
+                            className="px-6 py-4 font-normal"
+                            aria-sort={
+                              active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
+                            }
+                          >
+                            <button
+                              type="button"
+                              onClick={() => toggleSort(col.key)}
+                              className={`flex items-center gap-1.5 uppercase tracking-[0.18em] transition-colors hover:text-foreground ${
+                                active ? "text-foreground" : ""
+                              }`}
+                            >
+                              {col.label}
+                              <Icon className={`size-3 ${active ? "" : "opacity-50"}`} />
+                            </button>
+                          </th>
+                        );
+                      })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paged.map((lead) => (
+                      <tr key={lead.id} className="border-t border-border/60">
+                        <td className="px-6 py-4 text-foreground">{lead.email}</td>
+                        <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
+                              lead.consent
+                                ? "bg-accent/15 text-accent ring-accent/40"
+                                : "bg-destructive/10 text-destructive ring-destructive/40"
+                            }`}
+                          >
+                            {lead.consent ? "Granted" : "Missing"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {formatDate(lead.consent_at)}
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {formatDate(lead.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <nav
+                aria-label="Lead table pagination"
+                className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 px-6 py-4 text-sm text-muted-foreground"
+              >
+                <p>
+                  Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(currentPage * PAGE_SIZE, sorted.length)} of {sorted.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="glass flex h-9 items-center gap-1 rounded-full px-4 text-xs transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    <ChevronLeft className="size-4" />
+                    Previous
+                  </button>
+                  <span className="px-2 text-xs">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="glass flex h-9 items-center gap-1 rounded-full px-4 text-xs transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    Next
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              </nav>
+            </>
           )}
         </div>
+
       </div>
     </main>
   );
