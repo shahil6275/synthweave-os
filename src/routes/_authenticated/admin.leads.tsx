@@ -1,11 +1,35 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Loader2, LogOut, RefreshCw, Search, ShieldAlert } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  Download,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop } from "@/components/aios/primitives";
 
 type ConsentFilter = "all" | "granted" | "missing";
+type SortKey = "email" | "source" | "consent" | "consent_at" | "created_at";
+type SortDir = "asc" | "desc";
+
+const PAGE_SIZE = 10;
+
+const COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "email", label: "Email" },
+  { key: "source", label: "Source" },
+  { key: "consent", label: "Consent" },
+  { key: "consent_at", label: "Consent at" },
+  { key: "created_at", label: "Captured" },
+];
 
 type Lead = {
   id: string;
@@ -15,6 +39,7 @@ type Lead = {
   consent_at: string | null;
   created_at: string;
 };
+
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
   component: AdminLeadsPage,
