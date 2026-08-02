@@ -1,11 +1,35 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Loader2, LogOut, RefreshCw, Search, ShieldAlert } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  Download,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop } from "@/components/aios/primitives";
 
 type ConsentFilter = "all" | "granted" | "missing";
+type SortKey = "email" | "source" | "consent" | "consent_at" | "created_at";
+type SortDir = "asc" | "desc";
+
+const PAGE_SIZE = 10;
+
+const COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "email", label: "Email" },
+  { key: "source", label: "Source" },
+  { key: "consent", label: "Consent" },
+  { key: "consent_at", label: "Consent at" },
+  { key: "created_at", label: "Captured" },
+];
 
 type Lead = {
   id: string;
@@ -15,6 +39,7 @@ type Lead = {
   consent_at: string | null;
   created_at: string;
 };
+
 
 export const Route = createFileRoute("/_authenticated/admin/leads")({
   component: AdminLeadsPage,
@@ -61,6 +86,10 @@ function AdminLeadsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [consentFilter, setConsentFilter] = useState<ConsentFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("created_at");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [page, setPage] = useState(1);
+
 
   const leadsQuery = useQuery({
     queryKey: ["admin", "leads"],
@@ -86,8 +115,46 @@ function AdminLeadsPage() {
     });
   }, [leads, query, consentFilter]);
 
+  const sorted = useMemo(() => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (typeof av === "boolean" || typeof bv === "boolean") {
+        return ((av ? 1 : 0) - (bv ? 1 : 0)) * dir;
+      }
+      const as = (av ?? "") as string;
+      const bs = (bv ?? "") as string;
+      if (as === bs) return 0;
+      if (as === "") return 1;
+      if (bs === "") return -1;
+      return as.localeCompare(bs, undefined, { numeric: true }) * dir;
+    });
+  }, [filtered, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () => sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [sorted, currentPage],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, consentFilter, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (key === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "created_at" || key === "consent_at" ? "desc" : "asc");
+    }
+  };
+
+
   const handleExport = () => {
-    const blob = new Blob([toCsv(filtered)], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([toCsv(sorted)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -217,46 +284,102 @@ function AdminLeadsPage() {
                 : "No leads match your filters."}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[46rem] text-left text-sm">
-                <thead>
-                  <tr className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    <th scope="col" className="px-6 py-4 font-normal">Email</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Source</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Consent</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Consent at</th>
-                    <th scope="col" className="px-6 py-4 font-normal">Captured</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((lead) => (
-                    <tr key={lead.id} className="border-t border-border/60">
-                      <td className="px-6 py-4 text-foreground">{lead.email}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
-                            lead.consent
-                              ? "bg-accent/15 text-accent ring-accent/40"
-                              : "bg-destructive/10 text-destructive ring-destructive/40"
-                          }`}
-                        >
-                          {lead.consent ? "Granted" : "Missing"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {formatDate(lead.consent_at)}
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {formatDate(lead.created_at)}
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[46rem] text-left text-sm">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {COLUMNS.map((col) => {
+                        const active = sortKey === col.key;
+                        const Icon = !active ? ChevronsUpDown : sortDir === "asc" ? ArrowUp : ArrowDown;
+                        return (
+                          <th
+                            key={col.key}
+                            scope="col"
+                            className="px-6 py-4 font-normal"
+                            aria-sort={
+                              active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
+                            }
+                          >
+                            <button
+                              type="button"
+                              onClick={() => toggleSort(col.key)}
+                              className={`flex items-center gap-1.5 uppercase tracking-[0.18em] transition-colors hover:text-foreground ${
+                                active ? "text-foreground" : ""
+                              }`}
+                            >
+                              {col.label}
+                              <Icon className={`size-3 ${active ? "" : "opacity-50"}`} />
+                            </button>
+                          </th>
+                        );
+                      })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paged.map((lead) => (
+                      <tr key={lead.id} className="border-t border-border/60">
+                        <td className="px-6 py-4 text-foreground">{lead.email}</td>
+                        <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
+                              lead.consent
+                                ? "bg-accent/15 text-accent ring-accent/40"
+                                : "bg-destructive/10 text-destructive ring-destructive/40"
+                            }`}
+                          >
+                            {lead.consent ? "Granted" : "Missing"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {formatDate(lead.consent_at)}
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {formatDate(lead.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <nav
+                aria-label="Lead table pagination"
+                className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 px-6 py-4 text-sm text-muted-foreground"
+              >
+                <p>
+                  Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(currentPage * PAGE_SIZE, sorted.length)} of {sorted.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="glass flex h-9 items-center gap-1 rounded-full px-4 text-xs transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    <ChevronLeft className="size-4" />
+                    Previous
+                  </button>
+                  <span className="px-2 text-xs">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="glass flex h-9 items-center gap-1 rounded-full px-4 text-xs transition-colors hover:text-foreground disabled:opacity-40"
+                  >
+                    Next
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              </nav>
+            </>
           )}
         </div>
+
       </div>
     </main>
   );
