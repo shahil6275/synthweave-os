@@ -86,6 +86,10 @@ function AdminLeadsPage() {
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
   const [consentFilter, setConsentFilter] = useState<ConsentFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("created_at");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [page, setPage] = useState(1);
+
 
   const leadsQuery = useQuery({
     queryKey: ["admin", "leads"],
