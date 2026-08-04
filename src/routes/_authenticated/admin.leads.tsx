@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowDown,
   ArrowUp,
+  Check,
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
@@ -14,20 +15,33 @@ import {
   RefreshCw,
   Search,
   ShieldAlert,
+  Tag,
+  Trash2,
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop } from "@/components/aios/primitives";
 
 type ConsentFilter = "all" | "granted" | "missing";
-type SortKey = "email" | "source" | "consent" | "consent_at" | "created_at";
+type SortKey = "email" | "source" | "status" | "consent" | "consent_at" | "created_at";
 type SortDir = "asc" | "desc";
+type LeadStatus = "new" | "contacted" | "qualified" | "archived";
 
 const PAGE_SIZE = 10;
+
+const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "archived"];
+
+const STATUS_STYLES: Record<LeadStatus, string> = {
+  new: "bg-primary/15 text-primary ring-primary/40",
+  contacted: "bg-accent/15 text-accent ring-accent/40",
+  qualified: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/40",
+  archived: "bg-muted/40 text-muted-foreground ring-border",
+};
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "email", label: "Email" },
   { key: "source", label: "Source" },
+  { key: "status", label: "Status" },
   { key: "consent", label: "Consent" },
   { key: "consent_at", label: "Consent at" },
   { key: "created_at", label: "Captured" },
@@ -37,6 +51,7 @@ type Lead = {
   id: string;
   email: string;
   source: string;
+  status: LeadStatus;
   consent: boolean;
   consent_at: string | null;
   created_at: string;
@@ -73,14 +88,24 @@ function formatDate(value: string | null) {
 }
 
 function toCsv(rows: Lead[]) {
-  const header = ["email", "source", "consent", "consent_at", "created_at"];
+  const header = ["email", "source", "status", "consent", "consent_at", "created_at"];
   const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const lines = rows.map((r) =>
-    [r.email, r.source, r.consent ? "yes" : "no", r.consent_at ?? "", r.created_at]
+    [r.email, r.source, r.status, r.consent ? "yes" : "no", r.consent_at ?? "", r.created_at]
       .map((v) => escape(String(v)))
       .join(","),
   );
   return [header.join(","), ...lines].join("\r\n");
+}
+
+function downloadCsv(rows: Lead[]) {
+  const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `aios-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function AdminLeadsPage() {
@@ -93,6 +118,11 @@ function AdminLeadsPage() {
   const [page, setPage] = useState(1);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState<null | "delete" | "status">(null);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const openDrawer = (lead: Lead) => {
     setSelectedLead(lead);
@@ -118,10 +148,10 @@ function AdminLeadsPage() {
     queryFn: async (): Promise<Lead[]> => {
       const { data, error } = await supabase
         .from("leads")
-        .select("id, email, source, consent, consent_at, created_at")
+        .select("id, email, source, status, consent, consent_at, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Lead[];
     },
   });
 
@@ -165,6 +195,43 @@ function AdminLeadsPage() {
     setPage(1);
   }, [query, consentFilter, sortKey, sortDir]);
 
+  // Drop selections for rows that no longer exist or are filtered out.
+  useEffect(() => {
+    const visible = new Set(filtered.map((l) => l.id));
+    setSelectedIds((prev) => {
+      const next = prev.filter((id) => visible.has(id));
+      return next.length === prev.length ? prev : next;
+    });
+  }, [filtered]);
+
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const selectedLeads = useMemo(
+    () => sorted.filter((l) => selectedSet.has(l.id)),
+    [sorted, selectedSet],
+  );
+
+  const toggleOne = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+
+  const pageIds = paged.map((l) => l.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedSet.has(id));
+
+  const togglePage = () =>
+    setSelectedIds((prev) =>
+      allPageSelected
+        ? prev.filter((id) => !pageIds.includes(id))
+        : Array.from(new Set([...prev, ...pageIds])),
+    );
+
+  const clearSelection = () => {
+    setSelectedIds([]);
+    setStatusMenuOpen(false);
+    setConfirmDelete(false);
+    setBulkError(null);
+  };
+
   const toggleSort = (key: SortKey) => {
     if (key === sortKey) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -175,14 +242,39 @@ function AdminLeadsPage() {
   };
 
 
-  const handleExport = () => {
-    const blob = new Blob([toCsv(sorted)], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `aios-leads-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExport = () => downloadCsv(sorted);
+
+  const handleBulkExport = () => downloadCsv(selectedLeads);
+
+  const handleBulkStatus = async (status: LeadStatus) => {
+    setBulkBusy("status");
+    setBulkError(null);
+    setStatusMenuOpen(false);
+    const { error } = await supabase.from("leads").update({ status }).in("id", selectedIds);
+    setBulkBusy(null);
+    if (error) {
+      setBulkError("Couldn't update status. Admin access is required.");
+      return;
+    }
+    await leadsQuery.refetch();
+    setSelectedLead((prev) =>
+      prev && selectedSet.has(prev.id) ? { ...prev, status } : prev,
+    );
+    clearSelection();
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkBusy("delete");
+    setBulkError(null);
+    const { error } = await supabase.from("leads").delete().in("id", selectedIds);
+    setBulkBusy(null);
+    if (error) {
+      setBulkError("Couldn't delete leads. Admin access is required.");
+      return;
+    }
+    if (selectedLead && selectedSet.has(selectedLead.id)) closeDrawer();
+    await leadsQuery.refetch();
+    clearSelection();
   };
 
   const handleSignOut = async () => {
@@ -288,6 +380,129 @@ function AdminLeadsPage() {
           </button>
         </div>
 
+        <AnimatePresence>
+          {selectedIds.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="glass-strong mt-4 flex flex-wrap items-center gap-3 rounded-[1.25rem] px-5 py-4"
+              role="region"
+              aria-label="Bulk actions"
+            >
+              <p className="text-sm text-foreground">
+                {selectedIds.length} selected
+              </p>
+              <button
+                type="button"
+                onClick={clearSelection}
+                className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
+                Clear
+              </button>
+
+              <div className="ml-auto flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBulkExport}
+                  className="glass flex h-10 items-center gap-2 rounded-full px-4 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Download className="size-4" />
+                  Export selected
+                </button>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setStatusMenuOpen((o) => !o)}
+                    aria-haspopup="menu"
+                    aria-expanded={statusMenuOpen}
+                    disabled={bulkBusy !== null}
+                    className="glass flex h-10 items-center gap-2 rounded-full px-4 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                  >
+                    {bulkBusy === "status" ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Tag className="size-4" />
+                    )}
+                    Set status
+                  </button>
+                  <AnimatePresence>
+                    {statusMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        role="menu"
+                        className="absolute right-0 z-30 mt-2 w-44 overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1 shadow-2xl backdrop-blur-xl"
+                      >
+                        {STATUSES.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => handleBulkStatus(s)}
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs capitalize text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                          >
+                            <span
+                              className={`size-2 rounded-full ring-1 ${STATUS_STYLES[s]}`}
+                              aria-hidden="true"
+                            />
+                            {s}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {confirmDelete ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      disabled={bulkBusy !== null}
+                      className="flex h-10 items-center gap-2 rounded-full bg-destructive px-4 text-xs font-medium text-destructive-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                    >
+                      {bulkBusy === "delete" ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Check className="size-4" />
+                      )}
+                      Confirm delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(false)}
+                      className="glass flex h-10 items-center rounded-full px-4 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={bulkBusy !== null}
+                    className="flex h-10 items-center gap-2 rounded-full bg-destructive/15 px-4 text-xs text-destructive ring-1 ring-destructive/40 transition-colors hover:bg-destructive/25 disabled:opacity-50"
+                  >
+                    <Trash2 className="size-4" />
+                    Delete
+                  </button>
+                )}
+              </div>
+
+              {bulkError && (
+                <p role="alert" className="w-full text-xs text-destructive">
+                  {bulkError}
+                </p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="glass-strong mt-8 overflow-hidden rounded-[1.5rem]">
           {leadsQuery.isLoading ? (
             <div className="flex items-center justify-center gap-2 p-16 text-sm text-muted-foreground">
@@ -308,9 +523,18 @@ function AdminLeadsPage() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[46rem] text-left text-sm">
+                <table className="w-full min-w-[52rem] text-left text-sm">
                   <thead>
                     <tr className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      <th scope="col" className="px-6 py-4 font-normal">
+                        <input
+                          type="checkbox"
+                          checked={allPageSelected}
+                          onChange={togglePage}
+                          aria-label="Select all leads on this page"
+                          className="size-4 cursor-pointer accent-[oklch(var(--primary))] align-middle"
+                        />
+                      </th>
                       {COLUMNS.map((col) => {
                         const active = sortKey === col.key;
                         const Icon = !active ? ChevronsUpDown : sortDir === "asc" ? ArrowUp : ArrowDown;
@@ -352,10 +576,28 @@ function AdminLeadsPage() {
                             openDrawer(lead);
                           }
                         }}
-                        className="border-t border-border/60 cursor-pointer transition-colors hover:bg-primary/5 focus:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/30"
+                        className={`border-t border-border/60 cursor-pointer transition-colors hover:bg-primary/5 focus:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/30 ${
+                          selectedSet.has(lead.id) ? "bg-primary/10" : ""
+                        }`}
                       >
+                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={selectedSet.has(lead.id)}
+                            onChange={() => toggleOne(lead.id)}
+                            aria-label={`Select ${lead.email}`}
+                            className="size-4 cursor-pointer accent-[oklch(var(--primary))] align-middle"
+                          />
+                        </td>
                         <td className="px-6 py-4 text-foreground">{lead.email}</td>
                         <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs capitalize ring-1 ${STATUS_STYLES[lead.status]}`}
+                          >
+                            {lead.status}
+                          </span>
+                        </td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
@@ -463,6 +705,18 @@ function AdminLeadsPage() {
                   <div className="mt-8 flex-1 space-y-6 overflow-y-auto">
                     <DetailItem label="Email" value={selectedLead.email} />
                     <DetailItem label="Source" value={selectedLead.source} />
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        Status
+                      </dt>
+                      <dd className="mt-2">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs capitalize ring-1 ${STATUS_STYLES[selectedLead.status]}`}
+                        >
+                          {selectedLead.status}
+                        </span>
+                      </dd>
+                    </div>
                     <DetailItem
                       label="GDPR consent"
                       value={selectedLead.consent ? "Granted" : "Missing"}
