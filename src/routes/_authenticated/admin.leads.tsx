@@ -91,7 +91,18 @@ function AdminLeadsPage() {
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const openDrawer = (lead: Lead) => {
+    setSelectedLead(lead);
+    setDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setTimeout(() => setSelectedLead(null), 300);
+  };
 
   const leadsQuery = useQuery({
     queryKey: ["admin", "leads"],
