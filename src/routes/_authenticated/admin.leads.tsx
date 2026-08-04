@@ -104,6 +104,15 @@ function AdminLeadsPage() {
     setTimeout(() => setSelectedLead(null), 300);
   };
 
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeDrawer();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [drawerOpen]);
+
   const leadsQuery = useQuery({
     queryKey: ["admin", "leads"],
     queryFn: async (): Promise<Lead[]> => {
