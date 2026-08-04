@@ -406,7 +406,129 @@ function AdminLeadsPage() {
           )}
         </div>
 
+        <AnimatePresence>
+          {drawerOpen && selectedLead && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+                onClick={closeDrawer}
+                aria-hidden="true"
+              />
+              <motion.aside
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-border/60 bg-background/90 p-8 shadow-2xl backdrop-blur-xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="lead-details-title"
+              >
+                <div className="flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                        Lead details
+                      </p>
+                      <h2
+                        id="lead-details-title"
+                        className="mt-2 text-2xl font-semibold tracking-[-0.02em] break-all"
+                      >
+                        {selectedLead.email}
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={closeDrawer}
+                      className="glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+                      aria-label="Close lead details"
+                    >
+                      <X className="size-5" />
+                    </button>
+                  </div>
+
+                  <div className="mt-8 flex-1 space-y-6 overflow-y-auto">
+                    <DetailItem label="Email" value={selectedLead.email} />
+                    <DetailItem label="Source" value={selectedLead.source} />
+                    <DetailItem
+                      label="GDPR consent"
+                      value={selectedLead.consent ? "Granted" : "Missing"}
+                      badge
+                      badgeType={selectedLead.consent ? "success" : "error"}
+                    />
+                    <DetailItem
+                      label="Consent timestamp"
+                      value={formatDate(selectedLead.consent_at)}
+                    />
+                    <DetailItem
+                      label="Captured"
+                      value={formatDate(selectedLead.created_at)}
+                    />
+                    <DetailItem label="Lead ID" value={selectedLead.id} mono />
+                  </div>
+
+                  <div className="mt-6 border-t border-border/60 pt-6">
+                    <button
+                      type="button"
+                      onClick={closeDrawer}
+                      className="flex h-12 w-full items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                    >
+                      Close details
+                    </button>
+                  </div>
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </main>
+  );
+}
+
+function DetailItem({
+  label,
+  value,
+  mono,
+  badge,
+  badgeType,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  badge?: boolean;
+  badgeType?: "success" | "error";
+}) {
+  return (
+    <div>
+      <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-2">
+        {badge ? (
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs ring-1 ${
+              badgeType === "success"
+                ? "bg-accent/15 text-accent ring-accent/40"
+                : "bg-destructive/10 text-destructive ring-destructive/40"
+            }`}
+          >
+            {value}
+          </span>
+        ) : (
+          <span
+            className={`text-sm text-foreground ${
+              mono ? "break-all font-mono text-xs text-muted-foreground" : ""
+            }`}
+          >
+            {value}
+          </span>
+        )}
+      </dd>
+    </div>
   );
 }
