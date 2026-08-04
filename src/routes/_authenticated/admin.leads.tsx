@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowDown,
   ArrowUp,
@@ -13,6 +14,7 @@ import {
   RefreshCw,
   Search,
   ShieldAlert,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuroraBackdrop } from "@/components/aios/primitives";
