@@ -331,7 +331,20 @@ function AdminLeadsPage() {
                   </thead>
                   <tbody>
                     {paged.map((lead) => (
-                      <tr key={lead.id} className="border-t border-border/60">
+                      <tr
+                        key={lead.id}
+                        onClick={() => openDrawer(lead)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for ${lead.email}`}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            openDrawer(lead);
+                          }
+                        }}
+                        className="border-t border-border/60 cursor-pointer transition-colors hover:bg-primary/5 focus:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/30"
+                      >
                         <td className="px-6 py-4 text-foreground">{lead.email}</td>
                         <td className="px-6 py-4 text-muted-foreground">{lead.source}</td>
                         <td className="px-6 py-4">
