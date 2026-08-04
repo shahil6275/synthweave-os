@@ -22,6 +22,7 @@ export type Database = {
           email: string
           id: string
           source: string
+          status: Database["public"]["Enums"]["lead_status"]
         }
         Insert: {
           consent?: boolean
@@ -30,6 +31,7 @@ export type Database = {
           email: string
           id?: string
           source?: string
+          status?: Database["public"]["Enums"]["lead_status"]
         }
         Update: {
           consent?: boolean
@@ -38,6 +40,7 @@ export type Database = {
           email?: string
           id?: string
           source?: string
+          status?: Database["public"]["Enums"]["lead_status"]
         }
         Relationships: []
       }
@@ -77,6 +80,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      lead_status: "new" | "contacted" | "qualified" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -205,6 +209,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      lead_status: ["new", "contacted", "qualified", "archived"],
     },
   },
 } as const
