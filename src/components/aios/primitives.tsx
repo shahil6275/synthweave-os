@@ -153,7 +153,7 @@ export function GlowCard({
       }}
       onMouseLeave={() => setPos((p) => ({ ...p, active: false }))}
       className={cn(
-        "group relative overflow-hidden rounded-3xl glass-strong p-6 transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-primary/40",
+        "group relative overflow-hidden rounded-3xl glass-strong p-5 transition-[transform,border-color,box-shadow] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_24px_60px_-32px_color-mix(in_oklab,var(--primary)_60%,transparent)] sm:p-7",
         className,
       )}
     >
