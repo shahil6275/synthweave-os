@@ -262,15 +262,17 @@ export function AuroraBackdrop({ className }: { className?: string }) {
   );
 }
 
-export function Particles({ count = 34 }: { count?: number }) {
+export function Particles({ count = 22 }: { count?: number }) {
+  const reduce = useReducedMotion();
   const [seeds, setSeeds] = useState<
     { left: number; top: number; delay: number; dur: number; size: number }[]
   >([]);
 
   useEffect(() => {
+    if (reduce) return;
     const mobile =
       typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
-    const n = mobile ? Math.max(6, Math.round(count / 3)) : count;
+    const n = mobile ? Math.max(5, Math.round(count / 3)) : count;
     setSeeds(
       Array.from({ length: n }, () => ({
         left: Math.random() * 100,
