@@ -26,13 +26,15 @@ export function Collaboration() {
         align="left"
       />
 
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
         {collab.map((c, i) => (
           <Reveal key={c.title} delay={i * 0.05}>
-            <GlowCard className="h-full p-5">
+            <GlowCard className="h-full">
               <c.icon className="size-5 text-accent" strokeWidth={1.5} />
-              <p className="mt-8 text-[15px] font-medium tracking-tight">{c.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{c.desc}</p>
+              <p className="mt-10 text-[15px] font-medium tracking-tight">{c.title}</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                {c.desc}
+              </p>
             </GlowCard>
           </Reveal>
         ))}
