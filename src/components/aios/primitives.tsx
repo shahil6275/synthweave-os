@@ -282,14 +282,14 @@ export function Particles({ count = 22 }: { count?: number }) {
         size: 1 + Math.random() * 2.4,
       })),
     );
-  }, [count]);
+  }, [count, reduce]);
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       {seeds.map((s, i) => (
         <span
           key={i}
-          className="absolute rounded-full bg-accent/70 animate-float"
+          className="absolute rounded-full bg-accent/45 animate-float"
           style={{
             left: `${s.left}%`,
             top: `${s.top}%`,
@@ -297,7 +297,7 @@ export function Particles({ count = 22 }: { count?: number }) {
             height: s.size,
             animationDelay: `${s.delay}s`,
             animationDuration: `${s.dur}s`,
-            boxShadow: "0 0 12px color-mix(in oklab, var(--accent) 70%, transparent)",
+            boxShadow: "0 0 10px color-mix(in oklab, var(--accent) 45%, transparent)",
           }}
         />
       ))}
