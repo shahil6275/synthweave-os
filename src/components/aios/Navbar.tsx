@@ -38,9 +38,9 @@ export function Navbar() {
       <nav
         aria-label="Main"
         className={cn(
-          "mx-auto flex max-w-6xl items-center justify-between rounded-full px-5 py-3 transition-all duration-500",
+          "mx-auto flex max-w-6xl items-center justify-between rounded-full px-5 py-2.5 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           scrolled
-            ? "glass-strong shadow-[var(--shadow-elevated)]"
+            ? "glass shadow-[0_18px_50px_-30px_oklch(0_0_0/90%)]"
             : "border border-transparent bg-transparent",
         )}
       >
