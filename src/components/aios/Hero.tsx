@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import { AuroraBackdrop, MagneticButton, Particles, TextReveal } from "./primitives";
 
@@ -110,7 +110,7 @@ export function Hero() {
                     animationDelay: `${i * 1.4}s`,
                     background:
                       "linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary) 55%, transparent), color-mix(in oklab, var(--accent) 45%, transparent), transparent)",
-                  } as React.CSSProperties
+                  } as CSSProperties
                 }
               />
             ))}

@@ -1,5 +1,5 @@
 import { BarChart3, KeyRound, MessagesSquare, ShieldCheck, Users } from "lucide-react";
-import { GlowCard, Reveal, Section, SectionHeading } from "./primitives";
+import { Counter, GlowCard, Reveal, Section, SectionHeading } from "./primitives";
 
 const collab = [
   { icon: MessagesSquare, title: "Shared Chats", desc: "Every conversation is a team artifact." },
@@ -10,10 +10,10 @@ const collab = [
 ];
 
 const stats = [
-  { v: "100+", l: "AI models" },
-  { v: "1M+", l: "AI requests" },
-  { v: "50K+", l: "Users" },
-  { v: "99.99%", l: "Uptime" },
+  { value: 100, suffix: "+", decimals: 0, l: "AI models" },
+  { value: 1, suffix: "M+", decimals: 0, l: "AI requests" },
+  { value: 50, suffix: "K+", decimals: 0, l: "Users" },
+  { value: 99.99, suffix: "%", decimals: 2, l: "Uptime" },
 ];
 
 export function Collaboration() {
@@ -43,7 +43,7 @@ export function Collaboration() {
           {stats.map((s) => (
             <div key={s.l} className="bg-background/80 px-8 py-12 text-center backdrop-blur">
               <p className="text-4xl font-semibold tracking-[-0.03em] text-aurora md:text-5xl">
-                {s.v}
+                <Counter value={s.value} suffix={s.suffix} decimals={s.decimals} />
               </p>
               <p className="mt-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">
                 {s.l}
