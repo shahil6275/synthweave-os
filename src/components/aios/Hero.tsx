@@ -95,9 +95,27 @@ export function Hero() {
           style={{
             transform: `translate3d(${parallax.x * -14}px, ${parallax.y * -14}px, 0)`,
           }}
-          className="pointer-events-none relative mx-auto mt-24 h-[320px] w-full max-w-3xl md:h-[420px]"
+          className="pointer-events-none relative mx-auto mt-24 h-[320px] w-full max-w-3xl md:h-[440px]"
           aria-hidden
         >
+          {/* light beams */}
+          <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+            {[-38, -14, 12, 40].map((a, i) => (
+              <span
+                key={a}
+                className="animate-beam absolute left-0 top-0 h-[520px] w-[70px] origin-center -translate-x-1/2 -translate-y-1/2 blur-2xl"
+                style={
+                  {
+                    "--beam-angle": `${a}deg`,
+                    animationDelay: `${i * 1.4}s`,
+                    background:
+                      "linear-gradient(to bottom, transparent, color-mix(in oklab, var(--primary) 55%, transparent), color-mix(in oklab, var(--accent) 45%, transparent), transparent)",
+                  } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
+
           <div className="absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 animate-pulse-glow rounded-full bg-primary/40 blur-[90px] md:size-80" />
           <div className="absolute left-1/2 top-1/2 size-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/30 blur-[70px]" />
 
@@ -113,8 +131,47 @@ export function Hero() {
             />
           ))}
 
-          <div className="absolute left-1/2 top-1/2 grid size-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[2rem] glass-strong">
-            <span className="text-sm font-semibold tracking-[0.28em]">AIOS</span>
+          {/* animated connections from core to each model */}
+          <svg
+            className="absolute inset-0 size-full"
+            viewBox="0 0 800 440"
+            fill="none"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <defs>
+              <linearGradient id="aios-link" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.5" />
+              </linearGradient>
+            </defs>
+            {orbit.map((name, i) => {
+              const angle = (i / orbit.length) * Math.PI * 2;
+              return (
+                <line
+                  key={name}
+                  x1={400}
+                  y1={220}
+                  x2={400 + Math.cos(angle) * 190}
+                  y2={220 + Math.sin(angle) * 190 * 0.55}
+                  stroke="url(#aios-link)"
+                  strokeWidth="1"
+                  className="animate-dash"
+                  style={{ animationDelay: `${i * 0.4}s` }}
+                />
+              );
+            })}
+          </svg>
+
+          {/* core with glass reflection */}
+          <div className="absolute left-1/2 top-1/2 grid size-28 -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-[2rem] glass-strong shadow-[var(--shadow-glow)]">
+            <span
+              className="absolute inset-x-0 top-0 h-1/2 opacity-60"
+              style={{
+                background:
+                  "linear-gradient(to bottom, color-mix(in oklab, white 22%, transparent), transparent)",
+              }}
+            />
+            <span className="relative text-sm font-semibold tracking-[0.28em]">AIOS</span>
           </div>
 
           {orbit.map((name, i) => {
@@ -129,7 +186,7 @@ export function Hero() {
                 }}
               >
                 <span
-                  className="glass animate-float block rounded-full px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground"
+                  className="glass animate-float block rounded-full px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-[0_8px_30px_-12px_var(--color-primary)]"
                   style={{ animationDelay: `${i * 0.5}s` }}
                 >
                   {name}
@@ -138,6 +195,7 @@ export function Hero() {
             );
           })}
         </motion.div>
+
 
         {/* Live dashboard preview */}
         <motion.div
