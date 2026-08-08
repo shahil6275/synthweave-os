@@ -184,18 +184,20 @@
 @utility glass {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(130%);
 }
 
 @utility glass-strong {
   background: linear-gradient(
     160deg,
-    color-mix(in oklab, white 9%, transparent),
-    color-mix(in oklab, white 2%, transparent)
+    color-mix(in oklab, white 6%, transparent),
+    color-mix(in oklab, white 1.5%, transparent)
   );
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 7%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
 }
+
 
 @utility text-aurora {
   background-image: var(--gradient-text);
