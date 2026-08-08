@@ -92,12 +92,12 @@
   --destructive: oklch(0.62 0.23 25);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.635 0.213 288);
 
-  --glass: oklch(1 0 0 / 5%);
-  --glass-border: oklch(1 0 0 / 12%);
+  --glass: oklch(1 0 0 / 4%);
+  --glass-border: oklch(1 0 0 / 8%);
 
   --chart-1: oklch(0.635 0.213 288);
   --chart-2: oklch(0.836 0.142 205);
@@ -142,9 +142,9 @@
     color-mix(in oklab, var(--accent) 60%, transparent),
     transparent
   );
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 25%, transparent),
-    0 20px 60px -20px color-mix(in oklab, var(--primary) 55%, transparent);
-  --shadow-elevated: 0 30px 80px -30px oklch(0 0 0 / 80%);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 24px 70px -28px color-mix(in oklab, var(--primary) 45%, transparent);
+  --shadow-elevated: 0 30px 80px -34px oklch(0 0 0 / 85%);
 }
 
 @layer base {
@@ -184,18 +184,20 @@
 @utility glass {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(130%);
 }
 
 @utility glass-strong {
   background: linear-gradient(
     160deg,
-    color-mix(in oklab, white 9%, transparent),
-    color-mix(in oklab, white 2%, transparent)
+    color-mix(in oklab, white 6%, transparent),
+    color-mix(in oklab, white 1.5%, transparent)
   );
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: inset 0 1px 0 0 color-mix(in oklab, white 7%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
 }
+
 
 @utility text-aurora {
   background-image: var(--gradient-text);
