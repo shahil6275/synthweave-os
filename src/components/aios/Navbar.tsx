@@ -88,7 +88,7 @@ export function Navbar() {
       <motion.div
         aria-hidden
         style={{ width: barWidth }}
-        className="mx-auto mt-2 h-px max-w-6xl bg-gradient-to-r from-primary to-accent"
+        className="mx-auto mt-2 h-px max-w-6xl bg-gradient-to-r from-primary/70 to-accent/70"
       />
 
       {open ? (
