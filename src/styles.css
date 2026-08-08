@@ -92,12 +92,12 @@
   --destructive: oklch(0.62 0.23 25);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.635 0.213 288);
 
-  --glass: oklch(1 0 0 / 5%);
-  --glass-border: oklch(1 0 0 / 12%);
+  --glass: oklch(1 0 0 / 4%);
+  --glass-border: oklch(1 0 0 / 8%);
 
   --chart-1: oklch(0.635 0.213 288);
   --chart-2: oklch(0.836 0.142 205);
