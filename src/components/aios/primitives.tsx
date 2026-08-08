@@ -259,8 +259,11 @@ export function Particles({ count = 34 }: { count?: number }) {
   >([]);
 
   useEffect(() => {
+    const mobile =
+      typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+    const n = mobile ? Math.max(6, Math.round(count / 3)) : count;
     setSeeds(
-      Array.from({ length: count }, () => ({
+      Array.from({ length: n }, () => ({
         left: Math.random() * 100,
         top: Math.random() * 100,
         delay: Math.random() * 8,
