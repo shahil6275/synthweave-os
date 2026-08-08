@@ -259,8 +259,11 @@ export function Particles({ count = 34 }: { count?: number }) {
   >([]);
 
   useEffect(() => {
+    const mobile =
+      typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+    const n = mobile ? Math.max(6, Math.round(count / 3)) : count;
     setSeeds(
-      Array.from({ length: count }, () => ({
+      Array.from({ length: n }, () => ({
         left: Math.random() * 100,
         top: Math.random() * 100,
         delay: Math.random() * 8,
@@ -288,5 +291,57 @@ export function Particles({ count = 34 }: { count?: number }) {
         />
       ))}
     </div>
+  );
+}
+
+/* ---------------- Animated counter ---------------- */
+
+export function Counter({
+  value,
+  prefix = "",
+  suffix = "",
+  decimals = 0,
+  duration = 1600,
+  className,
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  duration?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const reduce = useReducedMotion();
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    if (reduce) {
+      setDisplay(value);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(value * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, reduce, value, duration]);
+
+  return (
+    <span ref={ref} className={className}>
+      {prefix}
+      {display.toLocaleString("en-US", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
+      {suffix}
+    </span>
   );
 }

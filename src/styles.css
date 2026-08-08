@@ -318,3 +318,43 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---- Aurora beams / connection lines ---- */
+@keyframes beam-sweep {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: rotate(var(--beam-angle, 0deg)) scaleY(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: rotate(var(--beam-angle, 0deg)) scaleY(1.14);
+  }
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+@keyframes shimmer-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@utility animate-beam {
+  animation: beam-sweep 9s ease-in-out infinite;
+}
+@utility animate-dash {
+  stroke-dasharray: 4 10;
+  animation: dash-flow 6s linear infinite;
+}
+@utility animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer-x 8s linear infinite;
+}
