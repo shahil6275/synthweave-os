@@ -161,7 +161,7 @@ export function GlowCard({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(340px circle at ${pos.x}% ${pos.y}%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)`,
+          background: `radial-gradient(320px circle at ${pos.x}% ${pos.y}%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%)`,
         }}
       />
       <div className="relative">{children}</div>
@@ -183,7 +183,10 @@ export function Section({
   return (
     <section
       id={id}
-      className={cn("relative mx-auto w-full max-w-7xl px-6 py-24 md:py-32", className)}
+      className={cn(
+        "relative mx-auto w-full max-w-7xl px-6 py-20 sm:px-8 md:py-32 lg:py-44",
+        className,
+      )}
     >
       {children}
     </section>
@@ -204,24 +207,29 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "mb-16 flex flex-col gap-5",
+        "mb-12 flex flex-col gap-6 md:mb-16",
         align === "center" ? "items-center text-center" : "items-start text-left",
       )}
     >
       <Reveal>
-        <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-accent" />
+        <span className="inline-flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground md:text-xs">
+          <span className="size-1 rounded-full bg-accent" />
           {eyebrow}
         </span>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2 className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.03em] md:text-6xl">
+        <h2 className="max-w-3xl text-balance text-[clamp(2.5rem,6vw,4.75rem)] font-semibold leading-[1.02] tracking-[-0.035em]">
           {title}
         </h2>
       </Reveal>
       {description ? (
         <Reveal delay={0.16}>
-          <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg">
+          <p
+            className={cn(
+              "max-w-[640px] text-pretty text-[17px] leading-[1.7] text-muted-foreground md:text-lg",
+              align === "center" && "mx-auto",
+            )}
+          >
             {description}
           </p>
         </Reveal>
@@ -229,6 +237,7 @@ export function SectionHeading({
     </div>
   );
 }
+
 
 /* ---------------- Ambient background layers ---------------- */
 
