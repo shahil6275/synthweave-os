@@ -142,9 +142,9 @@
     color-mix(in oklab, var(--accent) 60%, transparent),
     transparent
   );
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 25%, transparent),
-    0 20px 60px -20px color-mix(in oklab, var(--primary) 55%, transparent);
-  --shadow-elevated: 0 30px 80px -30px oklch(0 0 0 / 80%);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 24px 70px -28px color-mix(in oklab, var(--primary) 45%, transparent);
+  --shadow-elevated: 0 30px 80px -34px oklch(0 0 0 / 85%);
 }
 
 @layer base {
