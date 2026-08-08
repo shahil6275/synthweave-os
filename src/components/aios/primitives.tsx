@@ -247,9 +247,9 @@ export function AuroraBackdrop({ className }: { className?: string }) {
       aria-hidden
       className={cn("pointer-events-none absolute inset-0 -z-10 overflow-hidden", className)}
     >
-      <div className="aurora-field animate-drift absolute -inset-[20%] opacity-50" />
+      <div className="aurora-field animate-drift absolute -inset-[20%] opacity-[0.34]" />
       <div
-        className="absolute inset-0 opacity-[0.16]"
+        className="absolute inset-0 opacity-[0.1]"
         style={{
           backgroundImage:
             "linear-gradient(color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px)",
