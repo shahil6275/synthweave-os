@@ -19,7 +19,21 @@ export function Agents() {
         description="Give them a goal, tools and memory. They plan, execute and report back."
       />
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="relative grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 hidden size-full lg:block"
+          viewBox="0 0 1200 620"
+          fill="none"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M200 160 H1000 M200 460 H1000 M200 160 V460 M600 160 V460 M1000 160 V460"
+            stroke="color-mix(in oklab, var(--color-primary) 45%, transparent)"
+            strokeWidth="1"
+            className="animate-dash"
+          />
+        </svg>
         {agents.map((a, i) => (
           <Reveal key={a.name} delay={(i % 3) * 0.07}>
             <GlowCard className="h-full p-7">

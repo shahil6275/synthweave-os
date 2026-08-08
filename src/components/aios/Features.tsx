@@ -46,16 +46,34 @@ export function Features() {
         description="Sixteen native systems sharing one memory, one billing surface and one interface."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {features.map((f, i) => (
-          <Reveal key={f.title} delay={(i % 4) * 0.05}>
-            <GlowCard className="h-full p-5">
-              <f.icon className="size-5 text-accent" strokeWidth={1.5} />
-              <p className="mt-8 text-[15px] font-medium tracking-tight">{f.title}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{f.desc}</p>
-            </GlowCard>
-          </Reveal>
-        ))}
+      <div className="grid auto-rows-[minmax(150px,auto)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {features.map((f, i) => {
+          const wide = i === 0 || i === 7 || i === 10;
+          return (
+            <Reveal
+              key={f.title}
+              delay={(i % 4) * 0.05}
+              className={wide ? "sm:col-span-2" : undefined}
+            >
+              <GlowCard className="flex h-full flex-col p-5">
+                <span className="grid size-10 place-items-center rounded-2xl bg-primary/15 ring-1 ring-primary/25 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:ring-accent/40">
+                  <f.icon className="size-5 text-accent" strokeWidth={1.5} />
+                </span>
+                <p
+                  className={
+                    wide
+                      ? "mt-8 text-xl font-medium tracking-tight"
+                      : "mt-8 text-[15px] font-medium tracking-tight"
+                  }
+                >
+                  {f.title}
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{f.desc}</p>
+                <span className="mt-auto block h-px w-0 bg-gradient-to-r from-primary to-accent pt-4 transition-all duration-700 group-hover:w-full" />
+              </GlowCard>
+            </Reveal>
+          );
+        })}
       </div>
     </Section>
   );
